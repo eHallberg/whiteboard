@@ -26,17 +26,19 @@ angular.module('whiteboard')
 
 		};
 
-		$scope.putUpdate = function(itemId) {
-			console.log($scope.newtitle);
-			console.log($scope.newdesc);
+		$scope.putUpdate = function(newTitle, newDesc, itemId) {
+
+			console.log(newTitle);
+			console.log(newDesc);
+			console.log(itemId);
 			$http({
 				method: 'get',
 				url: url + itemId
 			}).
 			success(function(data) {
-				if ($scope.newtitle !== undefined && $scope.newdesc !== undefined) {
-					data.title = $scope.newtitle;
-					data.description = formatDesc.format($scope.newdesc);
+				if (newTitle !== undefined && newDesc !== undefined) {
+					data.title = newTitle;
+					data.description = formatDesc.format(newDesc);
 					$http.put(url + itemId, data).
 					success(function(data) {
 						$scope.getItems();
@@ -44,8 +46,8 @@ angular.module('whiteboard')
 						console.log('failed PUT');
 					});
 					console.log('Both changed');
-				} else if ($scope.newtitle !== undefined) {
-					data.title = $scope.newtitle;
+				} else if (newTitle !== undefined) {
+					data.title = newTitle;
 					$http.put(url + itemId, data).
 					success(function(data) {
 						$scope.getItems();
@@ -54,8 +56,8 @@ angular.module('whiteboard')
 					});
 					console.log('Title changed');
 					$scope.getItems();
-				} else if ($scope.newdesc !== undefined) {
-					data.description = $scope.formatDesc($scope.newdesc);
+				} else if (newDesc !== undefined) {
+					data.description = formatDesc.format(newDesc);
 					$http.put(url + itemId, data).
 					success(function(data) {
 						$scope.getItems();

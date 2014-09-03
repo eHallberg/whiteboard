@@ -22,7 +22,7 @@
 	<div class="container">
 		<wb-input title="title" desc="desc" color="color" action-add-item="addItem(title, desc, color)"></wb-input>
 		<div class="whiteboard" ng-repeat="item in items | orderBy:'id':true">
-		<wb-output title="item.title" desc="item.description" color="item.color" id="item.id" action-del-item="delItem(item.id)" newtitle="newtitle" newdesc="newdesc" action-put-update="putUpdate(item.id)"></wb-output>
+		<wb-output title="item.title" desc="item.description" color="item.color" id="item.id" action-del-item="delItem(item.id)" new-title="newTitle" new-desc="newDesc" action-put-update="putUpdate(newTitle, newDesc, item.id)"></wb-output>
 	</div>
 </div>
 </body>

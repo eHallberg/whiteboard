@@ -1,6 +1,7 @@
 angular.module('whiteboard')
 	.directive('wbOutput', function() {
 		return {
+
 			template: '<div class="postit" id="{{color}}">' +
 				'<ul>' +
 				'<div class="innerDiv" ng-hide="editorEnabled">' +
@@ -12,10 +13,10 @@ angular.module('whiteboard')
 				'</div>' +
 				'</div>' +
 				'<div ng-show="editorEnabled">' +
-				'<input ng-model="newtitle" placeholder="Title">' +
-				'<textarea id="textarea" ng-model="newdesc" placeholder="Description"></textarea>' +
+				'<input ng-model="newTitle" placeholder="Title">' +
+				'<textarea id="textarea" ng-model="newDesc" placeholder="Description"></textarea>' +
 				'<div>' +
-				'<select ng-model="newcolor" ng-init="newcolor=\'postit-blue\'">' +
+				'<select ng-model="newColor" ng-init="newColor=\'postit-blue\'">' +
 				'<option value="postit-blue">Blue</option>' +
 				'<option value="postit-yellow">Yellow</option>' +
 				'<option value="postit-red">Red</option>' +
@@ -33,8 +34,8 @@ angular.module('whiteboard')
 				desc: '=',
 				color: '=',
 				id: '=',
-				newtitle: '=',
-				newdesc: '='
+				newTitle: '=',
+				newDesc: '='
 
 			},
 			restrict: 'E'
