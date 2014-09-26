@@ -1,11 +1,38 @@
 'use strict';
 angular.module('whiteboard')
-	.controller('todoCtrl', function($scope, $http, formatDesc) {
+	.controller('todoCtrl', function($scope, $http, formatDesc, $filter) {
 		$scope.items = [{}];
 		var url = 'http://83.226.178.70:14782/1/';
+		var webSocket =
+			new WebSocket('ws://83.226.178.70:8080/ws-first-example/shout');
+
+		webSocket.onerror = function(event) {
+			onError(event)
+		};
+
+		webSocket.onopen = function(event) {
+			onOpen(event)
+		};
+
+		webSocket.onmessage = function(event) {
+			onMessage(event);
+		};
+
+		function onMessage(event) {
+			$scope.getItems();
+		}
+
+		function onOpen(event) {
+			document.getElementById('messages').innerHTML = 'Connection established';
+		}
+
+		function onError(event) {
+			alert(event.data);
+		}
+
 		$scope.addItem = function(title, desc, color) {
 
-			if (title !== undefined && desc !== undefined) {
+			if (title && desc) {
 				console.log(desc);
 				var newItem = {
 					title: title,
@@ -15,7 +42,7 @@ angular.module('whiteboard')
 				};
 				$http.post(url, newItem).
 				success(function(data) {
-					$scope.getItems();
+					webSocket.send(JSON.stringify(data));
 				}).error(function() {
 					console.log('Failed to post!');
 				});
@@ -23,10 +50,9 @@ angular.module('whiteboard')
 			} else {
 				alert('Please fill in the form!');
 			}
-
 		};
 
-		$scope.putUpdate = function(newTitle, newDesc, itemId) {
+		$scope.putUpdate = function(newTitle, newDesc, color, itemId) {
 
 			console.log(newTitle);
 			console.log(newDesc);
@@ -41,7 +67,7 @@ angular.module('whiteboard')
 					data.description = formatDesc.format(newDesc);
 					$http.put(url + itemId, data).
 					success(function(data) {
-						$scope.getItems();
+						webSocket.send(JSON.stringify(data));
 					}).error(function(data) {
 						console.log('failed PUT');
 					});
@@ -50,29 +76,29 @@ angular.module('whiteboard')
 					data.title = newTitle;
 					$http.put(url + itemId, data).
 					success(function(data) {
-						$scope.getItems();
+						webSocket.send(JSON.stringify(data));
 					}).error(function(data) {
 						console.log('failed PUT');
 					});
 					console.log('Title changed');
-					$scope.getItems();
+					webSocket.send(JSON.stringify(data));
 				} else if (newDesc !== undefined) {
 					data.description = formatDesc.format(newDesc);
 					$http.put(url + itemId, data).
 					success(function(data) {
-						$scope.getItems();
+						webSocket.send(JSON.stringify(data));
 					}).error(function(data) {
 						console.log('failed PUT');
 					});
 					console.log('Desc changed');
-					$scope.getItems();
+					webSocket.send(JSON.stringify(data));
 				} else {
 					console.log('something went wrong');
-					$scope.getItems();
+					webSocket.send(JSON.stringify(data));
 				}
 			}).error(function(data) {
-				console.log("Something went wrong with update");
-				$scope.getItems();
+				console.log('Something went wrong with update');
+				webSocket.send(JSON.stringify(data));
 			});
 		};
 
@@ -84,7 +110,7 @@ angular.module('whiteboard')
 			success(function(data, status, headers, config) {
 				$scope.items = data;
 			}).error(function(data, status, headers, config) {
-				console.log("fail getItems");
+				console.log('fail getItems');
 			});
 		};
 		$scope.delItem = function(itemId) {
@@ -94,10 +120,11 @@ angular.module('whiteboard')
 			}).
 			success(function(data, status, headers, config) {
 				console.log('deleted');
-				$scope.getItems();
+				webSocket.send(JSON.stringify(data));
 			}).error(function(data, status, headers, config) {
 				console.log('fail');
 			});
 		};
 		$scope.getItems();
+
 	});

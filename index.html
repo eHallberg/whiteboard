@@ -8,17 +8,19 @@
 	<link rel="stylesheet" href="./lib/bootstrap-3.2.0-dist/css/bootstrap-theme.min.css"/>
 	<link rel="stylesheet" type="text/css" href="./styles/main.css"/>
 
+	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 	<script src="./lib/angular1.3.x/js/angular.min.js"></script>
 	<script src="./lib/angular1.3.x/js/angular-route.min.js"></script>
-	<script src="./lib/bootstrap-3.2.0-dist/js/bootstrap.min.js"></script>
 	<script src="./scripts/app.js"></script>
 	<script src="./scripts/controllers/main.js"></script>
 	<script src="./scripts/filters/filters.js"></script>
 	<script src="./scripts/services/formatDesc.js"></script>
 	<script src="./scripts/directives/wbInput.js"></script>
 	<script src="./scripts/directives/wbOutput.js"></script>
+	<script src="./lib/bootstrap-3.2.0-dist/js/bootstrap.min.js"></script>
 </head>
 <body ng-controller="todoCtrl">
+  <div id="messages"></div>
 	<div class="container">
 		<wb-input title="title" desc="desc" color="color" action-add-item="addItem(title, desc, color)"></wb-input>
 		<div class="whiteboard" ng-repeat="item in items | orderBy:'id':true">
