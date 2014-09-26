@@ -35,7 +35,8 @@ angular.module('whiteboard')
 				color: '=',
 				id: '=',
 				newTitle: '=',
-				newDesc: '='
+				newDesc: '=',
+				newColor: '='
 
 			},
 			restrict: 'E'

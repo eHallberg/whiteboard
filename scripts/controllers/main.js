@@ -15,11 +15,13 @@ angular.module('whiteboard')
 		};
 
 		webSocket.onmessage = function(event) {
-			onMessage(event);
+			var msg = JSON.parse(event.data);
+			onMessage(msg);
 		};
 
 		function onMessage(event) {
-			$scope.getItems();
+			$scope.items.push(event);
+			//$scope.$apply();
 		}
 
 		function onOpen(event) {
@@ -62,16 +64,17 @@ angular.module('whiteboard')
 				url: url + itemId
 			}).
 			success(function(data) {
-				if (newTitle !== undefined && newDesc !== undefined) {
+				if (newTitle !== undefined && newDesc !== undefined && color !== undefined) {
 					data.title = newTitle;
 					data.description = formatDesc.format(newDesc);
+					data.color = color;
 					$http.put(url + itemId, data).
 					success(function(data) {
 						webSocket.send(JSON.stringify(data));
 					}).error(function(data) {
 						console.log('failed PUT');
 					});
-					console.log('Both changed');
+					console.log('Everything updated');
 				} else if (newTitle !== undefined) {
 					data.title = newTitle;
 					$http.put(url + itemId, data).
@@ -92,6 +95,16 @@ angular.module('whiteboard')
 					});
 					console.log('Desc changed');
 					webSocket.send(JSON.stringify(data));
+				} else if (color !== undefined) {
+					data.color = color;
+					$http.put(url + itemId, data).
+					success(function(data) {
+						webSocket.send(JSON.stringify(data));
+					}).error(function(data) {
+						console.log('failed PUT');
+					});
+					console.log('Color changed to: ' + color);
+					webSocket.send(JSON.stringify(data));
 				} else {
 					console.log('something went wrong');
 					webSocket.send(JSON.stringify(data));
@@ -109,6 +122,7 @@ angular.module('whiteboard')
 			}).
 			success(function(data, status, headers, config) {
 				$scope.items = data;
+
 			}).error(function(data, status, headers, config) {
 				console.log('fail getItems');
 			});
@@ -120,11 +134,12 @@ angular.module('whiteboard')
 			}).
 			success(function(data, status, headers, config) {
 				console.log('deleted');
-				webSocket.send(JSON.stringify(data));
+
 			}).error(function(data, status, headers, config) {
 				console.log('fail');
 			});
 		};
+
 		$scope.getItems();
 
 	});
