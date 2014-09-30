@@ -1,5 +1,5 @@
 'use strict';
-angular.module('whiteboard', ['ngRoute', 'filters'])
+var whiteboard = angular.module('whiteboard', ['ngRoute', 'filters'])
 	.config(function($routeProvider) {
 		$routeProvider
 			.when('/', {
