@@ -3,9 +3,11 @@ angular.module('whiteboard')
 	.controller('todoCtrl', function($scope, $http, formatDesc, $filter) {
 		$scope.items = [{}];
 
-		var url = 'http://localhost:14782/1/';
+		var ip = 'localhost';
+
+		var url = 'http://' + ip + ':14782/1/';
 		var webSocket =
-			new WebSocket('ws://localhost:8080/ws-first-example/shout');
+			new WebSocket('ws://' + ip + ':8080/ws-first-example/shout');
 
 		webSocket.onerror = function(event) {
 			onError(event)
@@ -22,20 +24,14 @@ angular.module('whiteboard')
 
 		function onMessage(event) {
 			$scope.$apply(function() {
-				console.log(event);
-				console.log(JSON.stringify(event.length));
-				if (1 <= event.length) {
+				if (1 <= event.length) { // Check if message is more then 1 array. If yes then replace old array with event.
 					$scope.items = [{}];
 					$scope.items = event;
-					console.log("new array: " + JSON.stringify($scope.items));
 				} else {
-					console.log('array pre push' + JSON.stringify($scope.items));
-					if (event.id) {
+					if (event.id) { // Check if event has id, if yes then add to items
 						$scope.items.push(event);
-						console.log("pushed update: " + JSON.stringify($scope.items));
-					} else {
+					} else { // Event is empty, no items on whiteboard
 						$scope.items = [];
-						console.log('no push: ' + JSON.stringify(event));
 					}
 				}
 			});
@@ -52,24 +48,20 @@ angular.module('whiteboard')
 		function updatePostit(title, desc, color, itemId) {
 			for (var i = 0; i < $scope.items.length; i++) {
 				if ($scope.items[i].id === itemId) {
-					if (title !== undefined && desc !== undefined && color !== undefined) {
+					if (title && desc && color) {
 						$scope.items[i].title = title;
 						$scope.items[i].description = desc;
 						$scope.items[i].color = color;
 						webSocket.send(JSON.stringify($scope.items));
-						console.log("Updated all");
-					} else if (title !== undefined) {
+					} else if (title) {
 						$scope.items[i].title = title;
 						webSocket.send(JSON.stringify($scope.items));
-						console.log("Updated title");
-					} else if (desc !== undefined) {
+					} else if (desc) {
 						$scope.items[i].description = desc;
 						webSocket.send(JSON.stringify($scope.items));
-						console.log("Updated desc");
 					} else {
 						$scope.items[i].color = color;
 						webSocket.send(JSON.stringify($scope.items));
-						console.log("Updated color");
 					}
 				}
 			};
@@ -78,13 +70,14 @@ angular.module('whiteboard')
 
 		$scope.addItem = function(title, desc, color) {
 			if (title && desc) {
-				console.log(desc);
 				var newItem = {
 					title: title,
 					description: formatDesc.format(desc),
 					color: color,
 					done: false
 				};
+				console.log(JSON.stringify(newItem));
+				console.log(newItem);
 				$http.post(url, newItem).
 				success(function(data) {
 					webSocket.send(JSON.stringify(data));
@@ -95,29 +88,25 @@ angular.module('whiteboard')
 				alert('Please fill in the form!');
 			}
 		}
-
 		$scope.putUpdate = function(newTitle, newDesc, color, itemId) {
-			console.log(newItem);
 			var newItem = {
 				title: newTitle,
 				description: newDesc,
 				color: color,
-				id: itemId,
 				done: false
 			};
 			for (var i = 0; i < $scope.items.length; i++) {
-
-				if (newTitle !== undefined && newDesc !== undefined && color !== undefined) {
-					updatePostit(newTitle, newDesc, color, itemId);
+				if (newTitle && newDesc) {
+					updatePostit(newTitle, formatDesc.format(newDesc), color, itemId);
 					newItem.title = newTitle;
 					newItem.description = formatDesc.format(newDesc);
 					newItem.color = color;
 					$http.put(url + itemId, newItem);
-				} else if (newTitle !== undefined && newTitle.length !== 0) {
-					updatePostit(newTitle, newDesc, color, itemId);
+				} else if (newTitle) {
 					newItem.title = newTitle;
 					newItem.description = $scope.items[i].description;
 					newItem.color = $scope.items[i].color;
+					updatePostit(newTitle, $scope.items[i].description, color, itemId);
 					$http.put(url + itemId, newItem).
 					success(function(data) {
 
@@ -125,11 +114,11 @@ angular.module('whiteboard')
 						console.log('failed PUT');
 					});
 					console.log('Title changed');
-				} else if (newDesc !== undefined && newDesc.length !== 0) {
-					updatePostit(newTitle, formatDesc.format(newDesc), color, itemId);
+				} else if (newDesc) {
 					newItem.title = $scope.items[i].title;
-					newItem.description = formatDesc.format(newDesc); // updated
+					newItem.description = formatDesc.format(newDesc);
 					newItem.color = $scope.items[i].color;
+					updatePostit(newItem.title, formatDesc.format(newDesc), color, itemId);
 					$http.put(url + itemId, newItem).
 					success(function(data) {
 
@@ -138,7 +127,7 @@ angular.module('whiteboard')
 					});
 					console.log('Desc changed');
 
-				} else if (color !== undefined) {
+				} else if (color) {
 					updatePostit(newTitle, newDesc, color, itemId);
 					newItem.color = color;
 					$http.put(url + itemId, newItem).
@@ -147,14 +136,12 @@ angular.module('whiteboard')
 					}).error(function(newItem) {
 						console.log('failed PUT');
 					});
-					console.log('Color changed to: ' + color);
 
 				} else {
 					console.log('something went wrong');
 
 				}
 			}
-			$scope.editForm.$setPristine();
 		};
 
 		$scope.getItems = function() {
@@ -183,9 +170,7 @@ angular.module('whiteboard')
 
 			for (var i = 0; i < $scope.items.length; i++) {
 				if ($scope.items[i].id === itemId) {
-					console.log(JSON.stringify($scope.items));
 					$scope.items.splice(i, 1);
-					console.log('rad 163' + JSON.stringify($scope.items));
 					webSocket.send(JSON.stringify($scope.items));
 				}
 			};
